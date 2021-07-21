@@ -31350,22 +31350,20 @@ if (process.env.NODE_ENV === 'production') {
 }).call(this)}).call(this,require('_process'))
 },{"./cjs/scheduler-tracing.development.js":11,"./cjs/scheduler-tracing.production.min.js":12,"_process":4}],17:[function(require,module,exports){
 var React = require('react');
-var createReactClass = require('create-react-class');
 var ListItem = require('./ListItem.jsx');
-
-var ingredients = [{ "id": 1, "text": "ham" }, { "id": 2, "text": "cheese" }, { "id": 3, "text": "potatoes" }];
+var createReactClass = require('create-react-class');
 
 var List = createReactClass({
     displayName: 'List',
 
     render: function () {
-        var listItems = ingredients.map(function (item) {
-            return React.createElement(ListItem, { key: item.id, ingredient: item.text });
-        });
+        var createItem = function (text, index) {
+            return React.createElement(ListItem, { key: index + text, text: text });
+        };
         return React.createElement(
             'ul',
             null,
-            listItems
+            this.props.items.map(createItem)
         );
     }
 });
@@ -31375,6 +31373,7 @@ module.exports = List;
 },{"./ListItem.jsx":18,"create-react-class":2,"react":10}],18:[function(require,module,exports){
 var React = require('react');
 var createReactClass = require('create-react-class');
+
 var ListItem = createReactClass({
     displayName: 'ListItem',
 
@@ -31385,18 +31384,103 @@ var ListItem = createReactClass({
             React.createElement(
                 'h4',
                 null,
-                this.props.ingredient
+                this.props.text
             )
         );
     }
 });
+
 module.exports = ListItem;
 
 },{"create-react-class":2,"react":10}],19:[function(require,module,exports){
 var React = require('react');
+var List = require('./List.jsx');
+var createReactClass = require('create-react-class');
+
+var ListManager = createReactClass({
+    displayName: 'ListManager',
+
+    getInitialState: function () {
+        return { items: [], newItemText: '' };
+    },
+    onChange: function (e) {
+        this.setState({ newItemText: e.target.value });
+    },
+    handleSubmit: function (e) {
+        e.preventDefault();
+
+        var currentItems = this.state.items;
+
+        currentItems.push(this.state.newItemText);
+
+        this.setState({ items: currentItems, newItemText: '' });
+    },
+    render: function () {
+        var divStyle = {
+            marginTop: 10
+
+        };
+        var headingStyle = {};
+        if (this.props.headingColor) {
+            headingStyle.background = this.props.headingColor;
+        }
+        return React.createElement(
+            'div',
+            { style: divStyle, className: 'col-sm-4' },
+            React.createElement(
+                'div',
+                { className: 'panel panel-primary' },
+                React.createElement(
+                    'div',
+                    { style: headingStyle, className: 'panel-heading' },
+                    React.createElement(
+                        'h3',
+                        null,
+                        this.props.title
+                    )
+                ),
+                React.createElement(
+                    'div',
+                    { className: 'row panel-body' },
+                    React.createElement(
+                        'form',
+                        { onSubmit: this.handleSubmit },
+                        React.createElement(
+                            'div',
+                            { className: 'col-sm-9' },
+                            React.createElement('input', { className: 'form-control', onChange: this.onChange, value: this.state.newItemText })
+                        ),
+                        React.createElement(
+                            'div',
+                            { className: 'col-sm-2' },
+                            React.createElement(
+                                'button',
+                                { className: 'btn btn-primary' },
+                                'Add'
+                            )
+                        )
+                    )
+                ),
+                React.createElement(
+                    'div',
+                    { className: 'row' },
+                    React.createElement(List, { items: this.state.items })
+                )
+            )
+        );
+    }
+
+});
+
+module.exports = ListManager;
+
+},{"./List.jsx":17,"create-react-class":2,"react":10}],20:[function(require,module,exports){
+var React = require('react');
 var ReactDOM = require('react-dom');
-var List = require('./components/List.jsx');
+var ListManager = require('./components/ListManager.jsx');
 
-ReactDOM.render(React.createElement(List, null), document.getElementById('ingredients'));
+ReactDOM.render(React.createElement(ListManager, { title: 'Ingredients' }), document.getElementById('ingredients'));
+ReactDOM.render(React.createElement(ListManager, { title: 'ToDo' }), document.getElementById('todo'));
+ReactDOM.render(React.createElement(ListManager, { title: 'Christmas', headingColor: '#b31217' }), document.getElementById('christmas'));
 
-},{"./components/List.jsx":17,"react":10,"react-dom":7}]},{},[19]);
+},{"./components/ListManager.jsx":19,"react":10,"react-dom":7}]},{},[20]);
